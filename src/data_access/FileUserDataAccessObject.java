@@ -2,6 +2,7 @@ package data_access;
 
 import entity.User;
 import entity.UserFactory;
+import use_case.clear_users.ClearUserDataAccessInterface;
 import use_case.login.LoginUserDataAccessInterface;
 import use_case.signup.SignupUserDataAccessInterface;
 
@@ -11,7 +12,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class FileUserDataAccessObject implements SignupUserDataAccessInterface, LoginUserDataAccessInterface {
+public class FileUserDataAccessObject implements SignupUserDataAccessInterface, LoginUserDataAccessInterface, ClearUserDataAccessInterface {
 
     private final File csvFile;
 
@@ -83,6 +84,25 @@ public class FileUserDataAccessObject implements SignupUserDataAccessInterface, 
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public List<String> clear() { // pick a return type
+        // Find a way to 1. clear the csv file, 2. save the usernames in the file and return it
+        try {
+            BufferedWriter writer = new BufferedWriter(new FileWriter(csvFile));
+            writer.write(String.join(",", headers.keySet())); // Rewrite the header row
+            writer.newLine();
+            writer.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        // Step 2: Save the usernames in the file and return them
+        List<String> usernames = new ArrayList<>(accounts.keySet());
+        accounts.clear(); // Clear all users in the accounts map
+        save(); // Save the cleared data
+
+        return usernames;
     }
 
 

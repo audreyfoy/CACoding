@@ -26,4 +26,9 @@ public class InMemoryUserDataAccessObject implements SignupUserDataAccessInterfa
     public void save(User user) {
         users.put(user.getName(), user);
     }
+
+    public void clearUserData() {
+        // Clear all users in the users map
+        users.clear();
+    }
 }

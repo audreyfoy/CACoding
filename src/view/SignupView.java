@@ -1,8 +1,13 @@
 package view;
 
+import data_access.FileUserDataAccessObject;
+import interface_adapter.clear_users.ClearState;
+import interface_adapter.clear_users.ClearViewModel;
 import interface_adapter.signup.SignupController;
 import interface_adapter.signup.SignupState;
 import interface_adapter.signup.SignupViewModel;
+import interface_adapter.clear_users.ClearController;
+import data_access.FileUserDataAccessObject;
 
 import javax.swing.*;
 import java.awt.*;
@@ -22,17 +27,31 @@ public class SignupView extends JPanel implements ActionListener, PropertyChange
     private final JPasswordField repeatPasswordInputField = new JPasswordField(15);
     private final SignupController signupController;
 
+    private final ClearController clearController;
+
+    private final ClearViewModel clearViewModel;
+
     private final JButton signUp;
     private final JButton cancel;
 
     // TODO Note: this is the new JButton for clearing the users file
     private final JButton clear;
 
-    public SignupView(SignupController controller, SignupViewModel signupViewModel) {
+    //private void clearUsers() {
+    //    ClearController clearController = new ClearController(); // Instantiate the ClearController
+    //    clearController.clearAllUsers(); // Call the clearAllUsers method
+    //}
+
+
+    public SignupView(SignupController controller, SignupViewModel signupViewModel, ClearController clearController,
+                      ClearViewModel clearViewModel) {
 
         this.signupController = controller;
         this.signupViewModel = signupViewModel;
+        this.clearController = clearController;
+        this.clearViewModel = clearViewModel;
         signupViewModel.addPropertyChangeListener(this);
+        clearViewModel.addPropertyChangeListener(this);
 
         JLabel title = new JLabel(SignupViewModel.TITLE_LABEL);
         title.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -54,6 +73,7 @@ public class SignupView extends JPanel implements ActionListener, PropertyChange
         //      a CLEAR_BUTTON_LABEL constant which is defined in the SignupViewModel class.
         //      You need to add this "clear" button to the "buttons" panel.
         clear = new JButton(SignupViewModel.CLEAR_BUTTON_LABEL);
+        buttons.add(clear);
 
         signUp.addActionListener(
                 // This creates an anonymous subclass of ActionListener and instantiates it.
@@ -72,14 +92,17 @@ public class SignupView extends JPanel implements ActionListener, PropertyChange
                 }
         );
 
+
         // TODO Add the body to the actionPerformed method of the action listener below
         //      for the "clear" button. You'll need to write the controller before
         //      you can complete this.
         clear.addActionListener(
                 new ActionListener() {
                     @Override
-                    public void actionPerformed(ActionEvent e) {
-
+                    public void actionPerformed(ActionEvent e){
+                        if (e.getSource().equals(clear)) {
+                            clearController.execute();
+                        }
                     }
                 }
         );
@@ -169,9 +192,16 @@ public class SignupView extends JPanel implements ActionListener, PropertyChange
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        SignupState state = (SignupState) evt.getNewValue();
-        if (state.getUsernameError() != null) {
-            JOptionPane.showMessageDialog(this, state.getUsernameError());
+        if (evt.getSource().equals(signupViewModel)) {
+            SignupState state = (SignupState) evt.getNewValue();
+            if (state.getUsernameError() != null) {
+                JOptionPane.showMessageDialog(this, state.getUsernameError());
+            }
+        } else if (evt.getSource().equals(clearViewModel)) {
+            ClearState state = (ClearState) evt.getNewValue();
+            if (state.getClearedUsernames() != null) {
+                JOptionPane.showMessageDialog(this, state.getClearedUsernames());
+            }
+
         }
-    }
-}
+    }}
